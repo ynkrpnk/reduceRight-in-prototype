@@ -1,36 +1,70 @@
 "use strict";
 
-const arrTest = ["Y", "a", "n"];
+function MyArrayProto() {
+  this.push = function () {
+    if (arguments) {
+      for (let i = 0; i < arguments.length; i++) {
+        this[this.length++] = arguments[i];
+      }
+    }
+    return this.length;
+  };
 
-function myReduceRight(arr, callback, initialValue) {
-  let result;
-  let startIndex;
-  const hasInitial = arguments.length >= 3;
+  this.pop = function () {
+    if (this.length === 0) return;
+    const lastItem = this[this.length - 1];
+    delete this[--this.length];
+    return lastItem;
+  };
 
-  if (arr.length === 0 && !hasInitial) {
-    console.log("Нічого не передано!");
-  }
-  if (arr.length === 0 && hasInitial) {
-    return initialValue;
-  }
-  if (arr.length === 1 && !hasInitial) {
-    return arr[0];
-  }
+  this.forEach = function (fn) {
+    for (let i = 0; i < this.length; i++) {
+      fn(this[i], i, this);
+    }
+  };
 
-  if (hasInitial) {
-    result = initialValue;
-    startIndex = arr.length - 1;
-  } else {
-    result = arr[arr.length - 1];
-    startIndex = arr.length - 2;
-  }
+  this.reduceRight = function (callback, initialValue) {
+    const hasInitial = arguments.length >= 2;
+    const len = this.length;
 
-  for (let i = startIndex; i >= 0; i--) {
-    result = callback(result, arr[i], i, arr);
-  }
-  return result;
+    if (len === 0 && !hasInitial) {
+      throw new TypeError("Reduce of empty array with no initial value");
+    }
+
+    if (len === 0 && hasInitial) {
+      return initialValue;
+    }
+
+    if (len === 1 && !hasInitial) {
+      return this[0];
+    }
+
+    let result;
+    let startIndex;
+
+    if (hasInitial) {
+      result = initialValue;
+      startIndex = len - 1;
+    } else {
+      result = this[len - 1];
+      startIndex = len - 2;
+    }
+
+    for (let i = startIndex; i >= 0; i--) {
+      result = callback(result, this[i], i, this);
+    }
+
+    return result;
+  };
 }
 
-let test = ["Y", "a", "n"];
+function MyArray() {
+  this.length = 0;
+}
 
-console.log(myReduceRight(test, (acc, char) => acc + char));
+MyArray.prototype = new MyArrayProto();
+
+let words = new MyArray();
+words.push("вчитися", "люблю", "Я");
+
+console.log(words.reduceRight((acc, word) => acc + " " + word));
