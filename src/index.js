@@ -68,3 +68,5 @@ let words = new MyArray();
 words.push("вчитися", "люблю", "Я");
 
 console.log(words.reduceRight((acc, word) => acc + " " + word));
+
+let int;
